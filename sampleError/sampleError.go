@@ -1,15 +1,7 @@
 package sampleError
 
-type SampleError struct {
-	message string
-}
+import "fmt"
 
-func (err *SampleError) Error() string {
-	return err.message
-}
-
-func New(message string) error {
-	return &SampleError{
-		message,
-	}
+func InvalidParamCount(expected int, actual int) error {
+	return fmt.Errorf("Invalid param count: expected %d, but got %d", expected, actual)
 }

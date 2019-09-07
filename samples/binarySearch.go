@@ -26,7 +26,7 @@ func binarySearch(arr []int, val int) int {
 
 func BinarySearch(params []string) ([]string, error) {
 	if len(params) != 2 {
-		return nil, sampleError.New("invalid params count")
+		return nil, sampleError.InvalidParamCount(2, len(params))
 	}
 
 	arr, err := utils.ToIntegerArray(params[0])
