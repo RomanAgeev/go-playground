@@ -6,13 +6,15 @@ import (
 )
 
 func exponentialSearch(arr []int, val int) int {
-	lo, hi := 0, 0
-	for val > arr[hi] && hi < len(arr)-1 {
-		lo = hi
-		hi = (hi+1)*2 - 1
-		if hi >= len(arr) {
-			hi = len(arr) - 1
-		}
+	w := 1
+	for w < len(arr) && val > arr[w-1] {
+		w *= 2
+	}
+
+	lo := w / 2
+	hi := w
+	if hi >= len(arr) {
+		hi = len(arr) - 1
 	}
 
 	// Binary Search
