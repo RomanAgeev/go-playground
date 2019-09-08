@@ -8,4 +8,5 @@ var repository = map[string]sample{
 	"binarySearch":        samples.BinarySearch,
 	"jumpSearch":          samples.JumpSearch,
 	"interpolationSearch": samples.InterpolationSearch,
+	"exponentialSearch":   samples.ExponentialSearch,
 }
