@@ -8,31 +8,27 @@ import (
 )
 
 func jumpSearch(arr []int, val int) int {
+	if len(arr) == 0 {
+		return -1
+	}
+
 	jump := int(math.Sqrt(float64(len(arr))))
 
-	lo := 0
-
-	for lo < len(arr) {
-		hi := lo + jump
+	hi, lo := 0, 0
+	for val > arr[hi] && hi < len(arr)-1 {
+		lo = hi
+		hi += jump
 		if hi >= len(arr) {
 			hi = len(arr) - 1
 		}
+	}
 
-		switch {
-		case val > arr[hi]:
-			lo = hi + 1
-		case val < arr[hi]:
-			for i := lo; i < hi; i++ {
-				if val == arr[i] {
-					return i
-				}
-				if val < arr[i] {
-					return -1
-				}
-			}
+	for i := lo; i <= hi; i++ {
+		if val == arr[i] {
+			return i
+		}
+		if val < arr[i] {
 			return -1
-		default:
-			return hi
 		}
 	}
 	return -1
