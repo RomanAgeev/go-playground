@@ -80,22 +80,23 @@ func sublistSearchImpl_2(list *structs.LLNode, sub *structs.LLNode) int {
 		ppIndex = index
 
 		for subP != nil {
-			if listP != nil && listP.Data == subP.Data {
-				if listP.Data == sub.Data {
-					if m {
-						p = listP
-						pIndex = index
-					} else {
-						m = true
-					}
-				}
-				listP = listP.Next
-				subP = subP.Next
-				index++
-			} else {
+			if listP == nil || listP.Data != subP.Data {
 				m = false
 				break
 			}
+
+			if listP.Data == sub.Data {
+				if m {
+					p = listP
+					pIndex = index
+				} else {
+					m = true
+				}
+			}
+
+			listP = listP.Next
+			subP = subP.Next
+			index++
 		}
 
 		if subP == nil {
@@ -118,37 +119,40 @@ func sublistSearchImpl_2(list *structs.LLNode, sub *structs.LLNode) int {
 	return -1
 }
 
-func sublistSearch(impl sublistSearchImpl) func(params []string) ([]string, error) {
-	return func(params []string) ([]string, error) {
-		if len(params) != 2 {
-			return nil, sampleError.InvalidParamCount(2, len(params))
-		}
-
-		listArr, err := utils.ToIntegerArray(params[0])
-		if err != nil {
-			return nil, err
-		}
-
-		subArr, err := utils.ToIntegerArray(params[1])
-		if err != nil {
-			return nil, err
-		}
-
-		var list *structs.LLNode = nil
-		for i := len(listArr) - 1; i >= 0; i-- {
-			list = structs.NewLLNode(list, listArr[i])
-		}
-
-		var sub *structs.LLNode = nil
-		for i := len(subArr) - 1; i >= 0; i-- {
-			sub = structs.NewLLNode(sub, subArr[i])
-		}
-
-		res := impl(list, sub)
-
-		return utils.ToStringArray(res), nil
+func sublistSearch(impl sublistSearchImpl, params []string) ([]string, error) {
+	if len(params) != 2 {
+		return nil, sampleError.InvalidParamCount(2, len(params))
 	}
+
+	listArr, err := utils.ToIntegerArray(params[0])
+	if err != nil {
+		return nil, err
+	}
+
+	subArr, err := utils.ToIntegerArray(params[1])
+	if err != nil {
+		return nil, err
+	}
+
+	var list *structs.LLNode = nil
+	for i := len(listArr) - 1; i >= 0; i-- {
+		list = structs.NewLLNode(list, listArr[i])
+	}
+
+	var sub *structs.LLNode = nil
+	for i := len(subArr) - 1; i >= 0; i-- {
+		sub = structs.NewLLNode(sub, subArr[i])
+	}
+
+	res := impl(list, sub)
+
+	return utils.ToStringArray(res), nil
 }
 
-var SublistSearch_1 = sublistSearch(sublistSearchImpl_1)
-var SublistSearch_2 = sublistSearch(sublistSearchImpl_2)
+func SublistSearch_1(params []string) ([]string, error) {
+	return sublistSearch(sublistSearchImpl_1, params)
+}
+
+func SublistSearch_2(params []string) ([]string, error) {
+	return sublistSearch(sublistSearchImpl_2, params)
+}
