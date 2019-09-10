@@ -14,4 +14,5 @@ var repository = map[string]sample{
 	"sublistSearch2":      samples.SublistSearch_2,
 	"selectionSort":       samples.SelectionSort,
 	"insertionSort":       samples.InsertionSort,
+	"bubbleSort":          samples.BubbleSort,
 }
