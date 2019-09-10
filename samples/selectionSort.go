@@ -7,12 +7,10 @@ import (
 
 func selectionSort(arr []int) []int {
 	for i := 0; i < len(arr)-1; i++ {
-		min := arr[i]
 		index := i
 
 		for j := i + 1; j < len(arr); j++ {
-			if arr[j] < min {
-				min = arr[j]
+			if arr[j] < arr[index] {
 				index = j
 			}
 		}
