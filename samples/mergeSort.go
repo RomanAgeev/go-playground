@@ -15,33 +15,37 @@ func mergeSort(arr []int) []int {
 	left := mergeSort(arr[:m])
 	right := mergeSort(arr[m:])
 
-	sum := make([]int, len(left)+len(right))
+	leftCopy := make([]int, len(left))
+	copy(leftCopy, left)
+
+	rightCopy := make([]int, len(right))
+	copy(rightCopy, right)
 
 	l, r, s := 0, 0, 0
-	for l < len(left) && r < len(right) {
-		if left[l] <= right[r] {
-			sum[s] = left[l]
+	for l < len(leftCopy) && r < len(rightCopy) {
+		if leftCopy[l] <= rightCopy[r] {
+			arr[s] = leftCopy[l]
 			l++
 		} else {
-			sum[s] = right[r]
+			arr[s] = rightCopy[r]
 			r++
 		}
 		s++
 	}
 
-	for l < len(left) {
-		sum[s] = left[l]
+	for l < len(leftCopy) {
+		arr[s] = leftCopy[l]
 		l++
 		s++
 	}
 
-	for r < len(right) {
-		sum[s] = right[r]
+	for r < len(rightCopy) {
+		arr[s] = rightCopy[r]
 		r++
 		s++
 	}
 
-	return sum
+	return arr
 }
 
 func MergeSort(params []string) ([]string, error) {
