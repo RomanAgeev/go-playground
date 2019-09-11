@@ -17,4 +17,6 @@ var repository = map[string]sample{
 	"bubbleSort":          samples.BubbleSort,
 	"mergeSort":           samples.MergeSort,
 	"quickSort":           samples.QuickSort,
+	"tripleSort1":         samples.TripleSort1,
+	"tripleSort2":         samples.TripleSort2,
 }
