@@ -21,12 +21,14 @@ func partition(arr []int, lo int, hi int) int {
 }
 
 func quickSort(arr []int, lo int, hi int) {
-	if lo < hi {
-		m := partition(arr, lo, hi)
-
-		quickSort(arr, lo, m-1)
-		quickSort(arr, m+1, hi)
+	if lo >= hi {
+		return
 	}
+
+	m := partition(arr, lo, hi)
+
+	quickSort(arr, lo, m-1)
+	quickSort(arr, m+1, hi)
 }
 
 func QuickSort(params []string) ([]string, error) {
