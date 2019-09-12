@@ -5,16 +5,7 @@ import (
 	"github.com/RomanAgeev/playground/utils"
 )
 
-func mergeSort(arr []int) []int {
-	if len(arr) <= 1 {
-		return arr
-	}
-
-	m := len(arr) / 2
-
-	left := mergeSort(arr[:m])
-	right := mergeSort(arr[m:])
-
+func merge(arr []int, left []int, right []int) {
 	leftCopy := make([]int, len(left))
 	copy(leftCopy, left)
 
@@ -44,6 +35,19 @@ func mergeSort(arr []int) []int {
 		r++
 		s++
 	}
+}
+
+func mergeSort(arr []int) []int {
+	if len(arr) <= 1 {
+		return arr
+	}
+
+	m := len(arr) / 2
+
+	left := mergeSort(arr[:m])
+	right := mergeSort(arr[m:])
+
+	merge(arr, left, right)
 
 	return arr
 }
