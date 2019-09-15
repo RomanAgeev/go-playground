@@ -22,4 +22,5 @@ var repository = map[string]sample{
 	"quickSortIterative":  samples.QuickSortIterative,
 	"tripleSort1":         samples.TripleSort1,
 	"tripleSort2":         samples.TripleSort2,
+	"heapSort":            samples.HeapSort,
 }
