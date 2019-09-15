@@ -26,4 +26,5 @@ var repository = map[string]sample{
 	"countingSort":        samples.CountingSort,
 	"countingSortInplace": samples.CountingSortInplace,
 	"countingSortAZ":      samples.CountingSortAZ,
+	"lsdSortAZ":           samples.LSDSortAZ,
 }
