@@ -31,3 +31,12 @@ func ToStringArray(source ...int) (result []string) {
 	}
 	return
 }
+
+func FirstRune(str string) rune {
+	var first rune
+	for _, rn := range str {
+		first = rn
+		break
+	}
+	return first
+}
