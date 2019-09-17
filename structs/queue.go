@@ -24,11 +24,10 @@ func (queue *Queue) Enqueue(data interface{}) {
 }
 
 func (queue *Queue) Dequeue() interface{} {
-	if queue.Head == nil {
+	head := queue.Head
+	if head == nil {
 		return nil
 	}
-
-	data := queue.Head.Data
 
 	queue.Head = queue.Head.Next
 	if queue.Head == nil {
@@ -37,7 +36,7 @@ func (queue *Queue) Dequeue() interface{} {
 
 	queue.length--
 
-	return data
+	return head.Data
 }
 
 func (queue Queue) Length() int {

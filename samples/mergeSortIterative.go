@@ -44,7 +44,7 @@ func mergeSortIterative(arr []int) []int {
 		})
 
 		for {
-			if mergeStack.Length <= 1 {
+			if mergeStack.Length() <= 1 {
 				break
 			}
 

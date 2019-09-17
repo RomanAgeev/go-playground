@@ -2,16 +2,20 @@ package structs
 
 type Stack struct {
 	Head   *LLNode
-	Length int
+	length int
 }
 
 func NewStack() *Stack {
 	return &Stack{}
 }
 
+func (stack Stack) Length() int {
+	return stack.length
+}
+
 func (stack *Stack) Push(data interface{}) {
 	stack.Head = NewLLNode(stack.Head, data)
-	stack.Length++
+	stack.length++
 }
 
 func (stack *Stack) Pop() interface{} {
@@ -22,7 +26,7 @@ func (stack *Stack) Pop() interface{} {
 	}
 
 	stack.Head = head.Next
-	stack.Length--
+	stack.length--
 
 	return head.Data
 }
