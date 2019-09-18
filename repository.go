@@ -30,5 +30,6 @@ var repository = map[string]sample{
 	"lsdSortAZ":           samples.LSDSortAZ,
 	"msdSortAZ":           samples.MSDSortAZ,
 	"shellSort":           samples.ShellSort,
-	"klargest":            samples.KLargest,
+	"klargest1":           samples.KLargest_1,
+	"klargest2":           samples.KLargest_2,
 }
