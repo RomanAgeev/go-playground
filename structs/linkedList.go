@@ -5,9 +5,9 @@ type LLNode struct {
 	Next *LLNode
 }
 
-func NewLLNode(head *LLNode, data interface{}) *LLNode {
+func NewLLNode(next *LLNode, data interface{}) *LLNode {
 	return &LLNode{
 		Data: data,
-		Next: head,
+		Next: next,
 	}
 }
