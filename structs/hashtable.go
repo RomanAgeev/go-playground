@@ -3,6 +3,7 @@ package structs
 import (
 	"math/rand"
 	"time"
+	"unsafe"
 )
 
 const initialSize = 31
@@ -15,7 +16,57 @@ type HashCoder interface {
 type Hashtable struct {
 	buckets []*LLNode
 	length  int
-	rnd     int
+	hash    hashCode
+}
+
+type hashCode32 struct {
+	rnd uint32
+}
+
+type hashCode64 struct {
+	rnd uint64
+}
+
+type hashCode interface {
+	calHashCode(key interface{}) int
+}
+
+func (hash hashCode32) calHashCode(key interface{}) int {
+	var h uint32
+	switch k := key.(type) {
+	case int:
+		h = uint32(k) * hash.rnd
+	case string:
+		h = hash.rnd
+		for _, b := range []byte(k) {
+			h = prime*h + uint32(b)
+		}
+	case HashCoder:
+		h = uint32(k.GetHashCode())
+	default:
+		panic("Cannot calc hashcode for the key")
+	}
+
+	return int(h & 0x7FFFFFFF)
+}
+
+func (hash hashCode64) calHashCode(key interface{}) int {
+	var h uint64
+	switch k := key.(type) {
+	case int:
+		h = uint64(k) * hash.rnd
+	case string:
+		h = hash.rnd
+		for _, b := range []byte(k) {
+			h = prime*h + uint64(b)
+		}
+	case HashCoder:
+		h = uint64(k.GetHashCode())
+	default:
+		panic("Cannot calc hashcode for the key")
+	}
+
+	return int(h & 0x7FFFFFFFFFFFFFFF)
 }
 
 type hashItem struct {
@@ -27,10 +78,21 @@ func NewHashtable() *Hashtable {
 	randSrc := rand.NewSource(time.Now().Unix())
 	randGen := rand.New(randSrc)
 
+	var hCode hashCode
+	if unsafe.Sizeof(int(0)) == 8 {
+		hCode = hashCode64{
+			rnd: randGen.Uint64(),
+		}
+	} else {
+		hCode = hashCode32{
+			rnd: randGen.Uint32(),
+		}
+	}
+
 	return &Hashtable{
 		buckets: make([]*LLNode, initialSize),
 		length:  0,
-		rnd:     randGen.Int(),
+		hash:    hCode,
 	}
 }
 
@@ -107,22 +169,8 @@ func (table Hashtable) bucketCount() int {
 }
 
 func (table Hashtable) getBucketIndex(key interface{}) int {
-	return getHashCode(key, table.rnd) % table.bucketCount()
-}
-
-func getHashCode(key interface{}, rnd int) (hash int) {
-	switch k := key.(type) {
-	case int:
-		hash = k * rnd
-	case string:
-		hash = rnd
-		for _, b := range []byte(k) {
-			hash = prime*hash + int(b)
-		}
-	case HashCoder:
-		hash = k.GetHashCode()
-	default:
-		panic("Cannot calc hashcode for the key")
-	}
-	return
+	h := table.hash.calHashCode(key)
+	count := table.bucketCount()
+	index := h % count
+	return index
 }
