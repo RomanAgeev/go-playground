@@ -18,6 +18,11 @@ type Hashtable struct {
 	rnd     int
 }
 
+type hashItem struct {
+	key interface{}
+	val interface{}
+}
+
 func NewHashtable() *Hashtable {
 	randSrc := rand.NewSource(time.Now().Unix())
 	randGen := rand.New(randSrc)
@@ -33,7 +38,23 @@ func (table Hashtable) Length() int {
 	return table.length
 }
 
-func (table *Hashtable) Add(key interface{}, data interface{}) {
+func (table Hashtable) Get(key interface{}) interface{} {
+	if key == nil {
+		panic("A hashtable key cannot be nil")
+	}
+
+	index := table.getBucketIndex(key)
+
+	for node := table.buckets[index]; node != nil; node = node.Next {
+		item := node.Data.(hashItem)
+		if item.key == key {
+			return item.val
+		}
+	}
+	return nil
+}
+
+func (table *Hashtable) Add(key interface{}, val interface{}) {
 	if table == nil {
 		panic("A hashtable cannot be nil")
 	}
@@ -42,13 +63,43 @@ func (table *Hashtable) Add(key interface{}, data interface{}) {
 		panic("A hashtable key cannot be nil")
 	}
 
-	bucketIndex := table.getBucketIndex(key)
+	index := table.getBucketIndex(key)
 
-	bucket := table.buckets[bucketIndex]
-	bucket = NewLLNode(bucket, data)
-	table.buckets[bucketIndex] = bucket
+	node := table.buckets[index]
+	node = NewLLNode(node, hashItem{key, val})
+	table.buckets[index] = node
 
 	table.length++
+}
+
+func (table *Hashtable) Remove(key interface{}) {
+	if table == nil {
+		panic("A hashtable cannot be nil")
+	}
+
+	if key == nil {
+		panic("A hashtable key cannot be nil")
+	}
+
+	index := table.getBucketIndex(key)
+
+	var prev *LLNode = nil
+
+	node := table.buckets[index]
+	for node != nil {
+		item := node.Data.(hashItem)
+		if item.key == key {
+			if prev == nil {
+				table.buckets[index] = node.Next
+			} else {
+				prev.Next = node.Next
+			}
+			return
+		}
+
+		prev = node
+		node = node.Next
+	}
 }
 
 func (table Hashtable) bucketCount() int {
