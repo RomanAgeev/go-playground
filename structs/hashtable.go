@@ -99,6 +99,12 @@ func (t *Hashtable) Remove(key interface{}) error {
 			} else {
 				prev.Next = node.Next
 			}
+
+			t.length--
+			if t.length < 0 {
+				panic(fmt.Sprintf("Hashtable length got a negative value %v", t.length))
+			}
+
 			break
 		}
 
