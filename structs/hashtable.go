@@ -1,75 +1,27 @@
 package structs
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 	"unsafe"
 )
 
-const initialSize = 31
+const initSize = 3
 const prime = 31
-
-type HashCoder interface {
-	GetHashCode() int
-}
+const loadThreshold = 0.75
 
 type Hashtable struct {
 	buckets []*LLNode
 	length  int
-	hash    hashCode
+	rnd     int
 }
 
-type hashCode32 struct {
-	rnd uint32
+type HashCoder interface {
+	HashCode() int
 }
 
-type hashCode64 struct {
-	rnd uint64
-}
-
-type hashCode interface {
-	calHashCode(key interface{}) int
-}
-
-func (hash hashCode32) calHashCode(key interface{}) int {
-	var h uint32
-	switch k := key.(type) {
-	case int:
-		h = uint32(k) * hash.rnd
-	case string:
-		h = hash.rnd
-		for _, b := range []byte(k) {
-			h = prime*h + uint32(b)
-		}
-	case HashCoder:
-		h = uint32(k.GetHashCode())
-	default:
-		panic("Cannot calc hashcode for the key")
-	}
-
-	return int(h & 0x7FFFFFFF)
-}
-
-func (hash hashCode64) calHashCode(key interface{}) int {
-	var h uint64
-	switch k := key.(type) {
-	case int:
-		h = uint64(k) * hash.rnd
-	case string:
-		h = hash.rnd
-		for _, b := range []byte(k) {
-			h = prime*h + uint64(b)
-		}
-	case HashCoder:
-		h = uint64(k.GetHashCode())
-	default:
-		panic("Cannot calc hashcode for the key")
-	}
-
-	return int(h & 0x7FFFFFFFFFFFFFFF)
-}
-
-type hashItem struct {
+type item struct {
 	key interface{}
 	val interface{}
 }
@@ -78,37 +30,29 @@ func NewHashtable() *Hashtable {
 	randSrc := rand.NewSource(time.Now().Unix())
 	randGen := rand.New(randSrc)
 
-	var hCode hashCode
-	if unsafe.Sizeof(int(0)) == 8 {
-		hCode = hashCode64{
-			rnd: randGen.Uint64(),
-		}
-	} else {
-		hCode = hashCode32{
-			rnd: randGen.Uint32(),
-		}
-	}
-
 	return &Hashtable{
-		buckets: make([]*LLNode, initialSize),
+		buckets: make([]*LLNode, initSize),
 		length:  0,
-		hash:    hCode,
+		rnd:     randGen.Int(),
 	}
 }
 
-func (table Hashtable) Length() int {
-	return table.length
+func (t *Hashtable) Length() int {
+	if t == nil {
+		return 0
+	}
+	return t.length
 }
 
-func (table Hashtable) Get(key interface{}) interface{} {
-	if key == nil {
-		panic("A hashtable key cannot be nil")
+func (t *Hashtable) Get(key interface{}) interface{} {
+	if t == nil || key == nil {
+		return nil
 	}
 
-	index := table.getBucketIndex(key)
+	index := t.bucketIndex(key)
 
-	for node := table.buckets[index]; node != nil; node = node.Next {
-		item := node.Data.(hashItem)
+	for node := t.buckets[index]; node != nil; node = node.Next {
+		item := node.Data.(item)
 		if item.key == key {
 			return item.val
 		}
@@ -116,61 +60,132 @@ func (table Hashtable) Get(key interface{}) interface{} {
 	return nil
 }
 
-func (table *Hashtable) Add(key interface{}, val interface{}) {
-	if table == nil {
-		panic("A hashtable cannot be nil")
+func (t *Hashtable) Add(key interface{}, val interface{}) error {
+	if t == nil {
+		return fmt.Errorf("Failed access a nil hashtable")
 	}
-
 	if key == nil {
-		panic("A hashtable key cannot be nil")
+		return fmt.Errorf("hashtable key cannot be nil")
 	}
 
-	index := table.getBucketIndex(key)
+	t.addInternal(key, val)
 
-	node := table.buckets[index]
-	node = NewLLNode(node, hashItem{key, val})
-	table.buckets[index] = node
+	load := float64(t.length) / float64(len(t.buckets))
+	if load > loadThreshold {
+		t.rehash()
+	}
 
-	table.length++
+	return nil
 }
 
-func (table *Hashtable) Remove(key interface{}) {
-	if table == nil {
-		panic("A hashtable cannot be nil")
+func (t *Hashtable) Remove(key interface{}) error {
+	if t == nil {
+		return fmt.Errorf("Failed access a nil hashtable")
 	}
-
 	if key == nil {
-		panic("A hashtable key cannot be nil")
+		return fmt.Errorf("hashtable key cannot be nil")
 	}
 
-	index := table.getBucketIndex(key)
+	i := t.bucketIndex(key)
 
 	var prev *LLNode = nil
 
-	node := table.buckets[index]
+	node := t.buckets[i]
 	for node != nil {
-		item := node.Data.(hashItem)
+		item := node.Data.(item)
 		if item.key == key {
 			if prev == nil {
-				table.buckets[index] = node.Next
+				t.buckets[i] = node.Next
 			} else {
 				prev.Next = node.Next
 			}
-			return
+			break
 		}
 
 		prev = node
 		node = node.Next
 	}
+
+	return nil
 }
 
-func (table Hashtable) bucketCount() int {
-	return len(table.buckets)
+func (t *Hashtable) addInternal(key interface{}, val interface{}) {
+	i := t.bucketIndex(key)
+
+	node := t.buckets[i]
+	node = NewLLNode(node, item{key, val})
+	t.buckets[i] = node
+
+	t.length++
 }
 
-func (table Hashtable) getBucketIndex(key interface{}) int {
-	h := table.hash.calHashCode(key)
-	count := table.bucketCount()
-	index := h % count
-	return index
+func (t *Hashtable) rehash() {
+	buckets := t.buckets
+	t.buckets = make([]*LLNode, len(buckets)*2)
+
+	for _, node := range buckets {
+		for ; node != nil; node = node.Next {
+			item := node.Data.(item)
+			t.addInternal(item.key, item.val)
+		}
+	}
+}
+
+func (t *Hashtable) bucketIndex(key interface{}) int {
+	return t.hashCode(key) % len(t.buckets)
+}
+
+func (t *Hashtable) hashCode(key interface{}) int {
+	var hash uint
+
+	switch k := key.(type) {
+
+	case HashCoder:
+		hash = uint(k.HashCode())
+
+	case string:
+		hash = stringHash(k, t.rnd)
+
+	case rune:
+		hash = stringHash(string([]rune{k}), t.rnd)
+
+	case uint:
+		hash = numberHash(k, t.rnd)
+
+	case int:
+		hash = numberHash(uint(k), t.rnd)
+
+	case uint8:
+		hash = numberHash(uint(k), t.rnd)
+
+	case uint16:
+		hash = numberHash(uint(k), t.rnd)
+
+	case uint32:
+		hash = numberHash(uint(k), t.rnd)
+
+	case uint64:
+		hash = numberHash(uint(k), t.rnd)
+
+	case uintptr:
+		hash = numberHash(uint(k), t.rnd)
+	}
+
+	if unsafe.Sizeof(hash) == 4 {
+		return int(hash & 0x7FFFFFFF)
+	}
+
+	return int(hash & 0x7FFFFFFFFFFFFFFF)
+}
+
+func stringHash(key string, rnd int) (hash uint) {
+	hash = uint(rnd)
+	for _, b := range []byte(key) {
+		hash = prime*hash + uint(b)
+	}
+	return
+}
+
+func numberHash(key uint, rnd int) uint {
+	return key * uint(rnd)
 }
