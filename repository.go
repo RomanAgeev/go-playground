@@ -32,4 +32,9 @@ var repository = map[string]sample{
 	"shellSort":           samples.ShellSort,
 	"klargest1":           samples.KLargest_1,
 	"klargest2":           samples.KLargest_2,
+	"traversePreorder":    samples.TraversePreorder,
+	"traverseInorder":     samples.TraverseInorder,
+	"traversePostorder":   samples.TraversePostorder,
+	"traverseLevelorder":  samples.TraverseLevelorder,
+	"treeFromList":        samples.TreeFromList,
 }
