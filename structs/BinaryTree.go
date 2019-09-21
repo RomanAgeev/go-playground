@@ -93,9 +93,9 @@ func inorderInternal(node *BTNode, res *[]interface{}) {
 	inorderInternal(node.Right, res)
 }
 
-func TraversePostorder(node *BTNode) []interface{} {
+func TraversePostorder(root *BTNode) []interface{} {
 	var res []interface{}
-	postorderInternal(node, &res)
+	postorderInternal(root, &res)
 	return res
 }
 
@@ -107,4 +107,36 @@ func postorderInternal(node *BTNode, res *[]interface{}) {
 	postorderInternal(node.Left, res)
 	postorderInternal(node.Right, res)
 	*res = append(*res, node.Data)
+}
+
+func TraverseLevelorder(root *BTNode) []interface{} {
+	var res []interface{}
+
+	if root == nil {
+		return res
+	}
+
+	level := NewQueue()
+	level.Enqueue(root)
+
+	for level.Length() > 0 {
+		nextLevel := NewQueue()
+
+		for item := level.Dequeue(); item != nil; item = level.Dequeue() {
+			node := item.(*BTNode)
+
+			res = append(res, node.Data)
+
+			if node.Left != nil {
+				nextLevel.Enqueue(node.Left)
+			}
+			if node.Right != nil {
+				nextLevel.Enqueue(node.Right)
+			}
+
+			level = nextLevel
+		}
+	}
+
+	return res
 }
