@@ -35,6 +35,7 @@ var repository = map[string]sample{
 	"traversePreorder":    samples.TraversePreorder,
 	"traverseInorder":     samples.TraverseInorder,
 	"traversePostorder":   samples.TraversePostorder,
-	"traverseLevelorder":  samples.TraverseLevelorder,
+	"traverseLevelorder1": samples.TraverseLevelorder1,
+	"traverseLevelorder2": samples.TraverseLevelorder2,
 	"treeFromList":        samples.TreeFromList,
 }

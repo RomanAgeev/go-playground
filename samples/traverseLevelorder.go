@@ -6,7 +6,17 @@ import (
 	"github.com/RomanAgeev/playground/utils"
 )
 
-func TraverseLevelorder(params []string) ([]string, error) {
+type traverseLevelorderImpl func(root *structs.BTNode) []int
+
+func TraverseLevelorder1(params []string) ([]string, error) {
+	return traverseLevelorder(traverseLevelorder_impl1, params)
+}
+
+func TraverseLevelorder2(params []string) ([]string, error) {
+	return traverseLevelorder(traverseLevelorder_impl2, params)
+}
+
+func traverseLevelorder(impl traverseLevelorderImpl, params []string) ([]string, error) {
 	if len(params) != 1 {
 		return nil, sampleError.InvalidParamCount(1, len(params))
 	}
@@ -18,12 +28,12 @@ func TraverseLevelorder(params []string) ([]string, error) {
 
 	root := TreeFromArray(arr)
 
-	res := traverseLevelorder(root)
+	res := impl(root)
 
 	return utils.ToStringArray(res...), nil
 }
 
-func traverseLevelorder(root *structs.BTNode) []int {
+func traverseLevelorder_impl1(root *structs.BTNode) []int {
 	var res []int
 
 	if root == nil {
@@ -53,4 +63,36 @@ func traverseLevelorder(root *structs.BTNode) []int {
 	}
 
 	return res
+}
+
+func traverseLevelorder_impl2(root *structs.BTNode) (res []int) {
+	targetLevel := 0
+
+	for {
+		var level []int
+		traverseLevelorder_impl2_rec(root, 0, targetLevel, &level)
+
+		if len(level) <= 0 {
+			break
+		}
+
+		res = append(res, level...)
+		targetLevel++
+	}
+
+	return
+}
+
+func traverseLevelorder_impl2_rec(node *structs.BTNode, level int, targetLevel int, res *[]int) {
+	if node == nil {
+		return
+	}
+
+	if level == targetLevel {
+		*res = append(*res, node.Data.(int))
+		return
+	}
+
+	traverseLevelorder_impl2_rec(node.Left, level+1, targetLevel, res)
+	traverseLevelorder_impl2_rec(node.Right, level+1, targetLevel, res)
 }
