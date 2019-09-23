@@ -40,4 +40,5 @@ var repository = map[string]sample{
 	"treeFromList":          samples.TreeFromList,
 	"lowestCommonAncestor1": samples.LowestCommonAncestor1,
 	"lowestCommonAncestor2": samples.LowestCommonAncestor2,
+	"treeSize":              samples.TreeSize,
 }
