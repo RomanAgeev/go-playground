@@ -6,7 +6,7 @@ import (
 	"github.com/RomanAgeev/playground/utils"
 )
 
-func CheckBST(params []string) ([]string, error) {
+func BSTCheck(params []string) ([]string, error) {
 	if len(params) != 1 {
 		return nil, sampleError.InvalidParamCount(1, len(params))
 	}
@@ -19,7 +19,7 @@ func CheckBST(params []string) ([]string, error) {
 	root := TreeFromArray(arr)
 
 	var res string
-	if isBST := checkBST(root); isBST {
+	if isBST := bstCheck(root); isBST {
 		res = "BST"
 	} else {
 		res = "Not BST"
@@ -28,13 +28,11 @@ func CheckBST(params []string) ([]string, error) {
 	return []string{res}, nil
 }
 
-var CheckBSTProxy = checkBST
-
-func checkBST(root *structs.BTNode) bool {
-	return checkBST_rec(root, 0, 0, false, false)
+func bstCheck(root *structs.BTNode) bool {
+	return bstCheck_rec(root, 0, 0, false, false)
 }
 
-func checkBST_rec(node *structs.BTNode, min int, max int, minDef bool, maxDef bool) bool {
+func bstCheck_rec(node *structs.BTNode, min int, max int, minDef bool, maxDef bool) bool {
 	if node == nil {
 		return true
 	}
@@ -49,8 +47,8 @@ func checkBST_rec(node *structs.BTNode, min int, max int, minDef bool, maxDef bo
 		return false
 	}
 
-	checkLeft := checkBST_rec(node.Left, min, val, minDef, true)
-	checkRight := checkBST_rec(node.Right, val, max, true, maxDef)
+	checkLeft := bstCheck_rec(node.Left, min, val, minDef, true)
+	checkRight := bstCheck_rec(node.Right, val, max, true, maxDef)
 
 	return checkLeft && checkRight
 }
