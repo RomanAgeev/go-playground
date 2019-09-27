@@ -36,13 +36,7 @@ func (node *AVLNode) InsertAVL(key int) *AVLNode {
 	heightL := node.Left.getHeight()
 	heightR := node.Right.getHeight()
 
-	var heightMax int
-	if heightL > heightR {
-		heightMax = heightL
-	} else {
-		heightMax = heightR
-	}
-	node.height = heightMax + 1
+	node.height = utils.MaxInt(heightL, heightR) + 1
 
 	switch balance := node.getBalance(); {
 
@@ -63,6 +57,68 @@ func (node *AVLNode) InsertAVL(key int) *AVLNode {
 	default:
 		return node
 	}
+}
+
+func (node *AVLNode) DeleteAVL(key int) *AVLNode {
+	if node == nil {
+		return node
+	}
+
+	if key < node.Key {
+		node.Left = node.Left.DeleteAVL(key)
+	} else if key > node.Key {
+		node.Right = node.Right.DeleteAVL(key)
+	} else {
+		if node.Left != nil && node.Right != nil {
+			node.Left = node.replaceMinMax(node.Left)
+		} else if node.Left != nil {
+			node = node.Left
+		} else if node.Right != nil {
+			node = node.Right
+		} else {
+			return nil
+		}
+	}
+
+	heightL := node.Left.getHeight()
+	heightR := node.Right.getHeight()
+
+	node.height = utils.MaxInt(heightL, heightR) + 1
+
+	switch balance := node.getBalance(); {
+
+	case balance > 1 && node.Left.getBalance() >= 0:
+		return rightRotate(node)
+
+	case balance > 1 && node.Left.getBalance() < 0:
+		node.Left = leftRotate(node.Left)
+		return rightRotate(node)
+
+	case balance < -1 && node.Right.getBalance() <= 0:
+		return leftRotate(node)
+
+	case balance < -1 && node.Right.getBalance() > 0:
+		node.Right = rightRotate(node.Right)
+		return leftRotate(node)
+	}
+
+	return node
+}
+
+func (root *AVLNode) replaceMinMax(node *AVLNode) *AVLNode {
+	if node.Right != nil {
+		node.Right = root.replaceMinMax(node.Right)
+		return node
+	}
+
+	if node.Left != nil {
+		node.Left = root.replaceMinMax(node.Left)
+		return node
+	}
+
+	root.Key = node.Key
+
+	return nil
 }
 
 func leftRotate(node *AVLNode) *AVLNode {
