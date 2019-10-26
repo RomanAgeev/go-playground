@@ -1,5 +1,7 @@
 package structs
 
+// TODO: remove test comment
+
 type Stack struct {
 	Head   *LLNode
 	length int
