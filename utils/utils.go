@@ -47,3 +47,10 @@ func MaxInt(x1, x2 int) int {
 	}
 	return x2
 }
+
+func MinInt(x1, x2 int) int {
+	if x1 < x2 {
+		return x1
+	}
+	return x2
+}
