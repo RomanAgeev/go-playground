@@ -25,7 +25,12 @@ func countingSortInplace(arr []int, l int, h int) {
 			i++
 			continue
 		}
-		arr[i], arr[acc[index]] = arr[acc[index]], arr[i]
+		j := acc[index]
+		if j > i {
+			arr[i], arr[acc[index]] = arr[acc[index]], arr[i]
+		} else {
+			i++
+		}
 		acc[index]++
 		cnt[index]--
 	}
